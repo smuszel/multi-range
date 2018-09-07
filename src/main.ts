@@ -2,13 +2,15 @@
 const clamp = val => Math.max(Math.min(1, val), 0);
 
 interface Handle extends HTMLSpanElement {
-    moveTo: (p:number) => void
+    moveTo: (p: number) => void;
+    position: number;
 }
 
 class MultiRange extends HTMLElement {
 
-    handle1: Handle;
-    handle2: Handle;
+    fst: Handle;
+    snd: Handle;
+    hasFullyConnected = false;
 
     defaults = {
         firstHandlePosition: 0.5,
@@ -25,58 +27,87 @@ class MultiRange extends HTMLElement {
     }
 
     attributeChangedCallback(name, newV, oldV) {
-        debugger
-        this.syncHandles();
-        this.dispatchChange();
+        if (this.hasFullyConnected) {
+            this.resetHandles();
+            this.dispatchChange();
+        }
     }
 
     connectedCallback() {
         this.setUpDOM();
-        this.syncHandles();
+        this.resetHandles();
+        this.hasFullyConnected = true;
     }
 
     setUpDOM() {
         const create = () => {
-            this.handle1 = document.createElement('span') as Handle;
-            this.handle2 = document.createElement('span') as Handle;
+            this.fst = document.createElement('span') as Handle;
+            this.snd = document.createElement('span') as Handle;
         }
 
         const setClasses = () => {
-            this.handle1.className = 'handle handle-fst';
-            this.handle2.className = 'handle handle-snd';
+            this.fst.className = 'handle handle-fst';
+            this.snd.className = 'handle handle-snd';
         }
 
         const addListeners = () => {
             this.addEventListener('dragstart', ev => ev.preventDefault());
             this.addEventListener('click', this.moveClosestHandle);
 
-            this.handle1.addEventListener('dragstart', ev => ev.preventDefault());
-            this.handle2.addEventListener('dragstart', ev => ev.preventDefault());
+            this.fst.addEventListener('dragstart', ev => ev.preventDefault());
+            this.snd.addEventListener('dragstart', ev => ev.preventDefault());
     
-            this.handle1.addEventListener('mousedown', this.startMouseTracking);
-            this.handle2.addEventListener('mousedown', this.startMouseTracking);
+            this.fst.addEventListener('mousedown', this.startMouseTracking);
+            this.snd.addEventListener('mousedown', this.startMouseTracking);
         }
 
-        const misc = () => {
-            this.handle1.moveTo = fr => this.fst = fr;
-            this.handle2.moveTo = fr => this.snd = fr;
+        const enhanceHandles = () => {
+            Reflect.defineProperty(this.fst, 'position', {
+                get: () => {
+                    const propValue = this.style.getPropertyValue('--fst').replace('%', '');
+                    const fr = parseInt(propValue) / 100;
+
+                    return this.fractionToTick(fr);
+                },
+                set: (tick) => {
+                    const p = this.tickToFraction(tick) * 100;
+                    this.style.setProperty('--fst', `${p}%`);
+                    this.flipCheck();
+                    this.dispatchChange();
+                }
+            });
+
+            Reflect.defineProperty(this.snd, 'position', {
+                get: () => {
+                    const propValue = this.style.getPropertyValue('--snd').replace('%', '');
+                    const fr = parseInt(propValue) / 100;
+
+                    return this.fractionToTick(fr);
+                },
+                set: (tick) => {
+                    const p = this.tickToFraction(tick) * 100;
+                    this.style.setProperty('--snd', `${p}%`);
+                    this.flipCheck();
+                    this.dispatchChange();
+                }
+            });
         }
 
         const append = () => {
-            this.appendChild(this.handle1);
-            this.appendChild(this.handle2);
+            this.appendChild(this.fst);
+            this.appendChild(this.snd);
         }
 
         create();
         setClasses();
         addListeners();
-        misc();
+        enhanceHandles();
         append();       
     }
 
-    syncHandles() {
-        this.fst = this.defaults.firstHandlePosition;
-        this.snd = this.defaults.secondHandlePosition;
+    resetHandles() {
+        this.fst.position = this.fractionToTick(this.defaults.firstHandlePosition);
+        this.snd.position = this.fractionToTick(this.defaults.secondHandlePosition);
     }
 
     startMouseTracking = startEv => {
@@ -84,9 +115,9 @@ class MultiRange extends HTMLElement {
 
         const trackMouse = trackEv => {
             const realtiveMouseX = trackEv.clientX - this.offsetLeft;
-            const percentage = realtiveMouseX / this.offsetWidth;
+            const fr = realtiveMouseX / this.offsetWidth;
 
-            target.moveTo(percentage);
+            this.setHandlePositionSafely(fr, target)
         }
 
         const dispose = () => document.removeEventListener('mousemove', trackMouse);
@@ -96,7 +127,7 @@ class MultiRange extends HTMLElement {
     }
 
     tickToFraction(tick) {
-        return 100 * tick / this.numberOfTicks;
+        return tick / this.numberOfTicks;
     }
 
     fractionToTick(fr) {
@@ -104,7 +135,7 @@ class MultiRange extends HTMLElement {
     }
 
     flipCheck() {
-        if (this.fst > this.snd) {
+        if (this.fst.position > this.snd.position) {
             this.setAttribute('flipped', 'true');
         } else {
             this.removeAttribute('flipped');
@@ -126,24 +157,23 @@ class MultiRange extends HTMLElement {
             const fraction = realtiveMouseX / this.offsetWidth;
             const tick = this.fractionToTick(fraction);
 
-            const distanceToFirst = Math.abs(this.fst - tick);
-            const distanceTosecond = Math.abs(this.snd - tick);
-            const firstHandleCloser = distanceToFirst < distanceTosecond;
-
+            const distanceToFirst = Math.abs(this.fst.position - tick);
+            const distanceToSecond = Math.abs(this.snd.position - tick);
+            const firstHandleCloser = distanceToFirst < distanceToSecond;
 
             firstHandleCloser
-                ? this.fst = fraction
-                : this.snd = fraction;
+                ? this.fst.position = tick
+                : this.snd.position = tick;
         }
     }
 
     setHandlePositionSafely(fr, target) {
         const clamped = clamp(fr);
         const newTick = this.fractionToTick(clamped);
-        const differs = newTick !== 
+        const differs = newTick !== target.position;
 
         if (differs) {
-            const p = this.tickToFraction(newTick);
+            target.position = newTick;
         }
     }
 
@@ -153,45 +183,12 @@ class MultiRange extends HTMLElement {
         return parseInt(v) || this.defaults.numberOfTicks;
     }
 
-    set fst(p) {
-        this.style.setProperty('--fst', `${p}%`);
-        this.flipCheck();
-        this.dispatchChange();
-    }
-
-    get fst() {
-        const propValue = this.style.getPropertyValue('--fst').replace('%', '');
-        const fr = parseInt(propValue) / 100;
-
-        return this.fractionToTick(fr);
-    }
-    
-    set snd(p) {
-        const clamped = clamp(fr);
-        const newTick = this.fractionToTick(clamped);
-        const differs = newTick !== this.snd
-
-        if (differs) {
-            const p = this.tickToFraction(newTick);
-            this.style.setProperty('--snd', `${p}%`);
-            this.flipCheck();
-            this.dispatchChange();
-        }
-    }
-
-    get snd() {
-        const propValue = this.style.getPropertyValue('--snd').replace('%', '');
-        const fr = parseInt(propValue) / 100;
-
-        return this.fractionToTick(fr);
-    }
-
     get min() {
-        return Math.min(this.fst, this.snd);
+        return Math.min(this.fst.position, this.snd.position);
     }
     
     get max() {
-        return Math.max(this.fst, this.snd);
+        return Math.max(this.fst.position, this.snd.position);
     }
 }
 

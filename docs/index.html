@@ -30,10 +30,10 @@
     }
 </style>
 <body>
-    <multi-range></multi-range>
+    <multi-range ticks="4"></multi-range>
     <label>
         Number of ticks:
-        <input id="" value="20" type="number">
+        <input id="" type="number">
     </label>
     <div id="display"></div>
 </body>
@@ -55,6 +55,7 @@
             `
         }
         
+        inp.value = multirange.getAttribute('ticks');
         refreshDisplay();
         multirange.addEventListener('change', refreshDisplay);
         inp.addEventListener('change', changeTicks);
