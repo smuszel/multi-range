@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./index.css">
+    <title>Range</title>
+</head>
+<style>
+    body {
+        margin: 20px;
+        padding: 20px;
+        display: grid;
+        grid-template-columns: 400px 130px 100px;
+        grid-gap: 20px;
+    }
+
+    mutli-range {
+        align-self: center;
+    }
+
+    input[type="number"] {
+        width: -webkit-fill-available;
+    }
+
+    #display {
+        display: flex;
+        align-items: flex-end;
+    }
+</style>
+<body>
+    <multi-range></multi-range>
+    <label>
+        Number of ticks:
+        <input id="" value="20" type="number">
+    </label>
+    <div id="display"></div>
+</body>
+    <script src="./main.js"></script>
+    <script>
+        const inp = document.querySelector('[type]');
+        const multirange = document.querySelector('multi-range');
+        const display = document.querySelector('#display');
+
+        const changeTicks = () => {
+            multirange.setAttribute('ticks', inp.value);
+        }
+
+        const refreshDisplay = () => {
+            display.innerHTML = `
+                min: ${multirange.min}
+                <br>
+                max: ${multirange.max}
+            `
+        }
+        
+        refreshDisplay();
+        multirange.addEventListener('change', refreshDisplay);
+        inp.addEventListener('change', changeTicks);
+    </script>
+</html>

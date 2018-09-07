@@ -1,0 +1,27 @@
+:root {
+  --handleWidth: 15px;
+  --selectedColor: hsl(190, 80%, 40%);
+  --trackColor: rgb(212, 212, 212);
+  --handleColor: rgb(216, 216, 216);
+  --handleBorderColor: rgb(167, 167, 167); }
+
+multi-range {
+  display: flex;
+  position: relative;
+  height: 10px;
+  background-image: linear-gradient(to right, var(--trackColor) var(--fst), var(--selectedColor) var(--fst), var(--selectedColor) var(--snd), var(--trackColor) var(--snd)); }
+  multi-range[flipped] {
+    background-image: linear-gradient(to right, var(--trackColor) var(--snd), var(--selectedColor) var(--snd), var(--selectedColor) var(--fst), var(--trackColor) var(--fst)); }
+
+.handle {
+  position: absolute;
+  display: block;
+  width: var(--handleWidth);
+  height: 300%;
+  top: -100%;
+  background: var(--handleColor);
+  border: 1px solid var(--handleBorderColor); }
+  .handle-fst {
+    left: calc(var(--fst) - var(--handleWidth ) / 2); }
+  .handle-snd {
+    left: calc(var(--snd) - var(--handleWidth) / 2); }

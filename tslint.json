@@ -1,0 +1,33 @@
+{
+    "defaultSeverity": "warning",
+    "rules": {
+        "no-console": false,
+        "quotemark": false,
+        "ordered-imports": false,
+        "object-literal-key-quotes": false,
+        "object-literal-sort-keys": false,
+        "arrow-parens": false,
+        "no-consecutive-blank-lines": false,
+        "eofline": false,
+        "no-magic-numbers": [true, 0, -1, 1, 2, 7],
+        "curly": true,
+        "no-arg": true,
+        "no-conditional-assignment": true,
+        "no-construct": true,
+        "no-eval": true,
+        "no-return-await": true,
+        "no-string-literal": true,
+        "no-var-keyword": true,
+        "triple-equals": [true, "allow-null-check"],
+        "switch-default": true,
+        "indent": true,
+        "max-line-length": [true, {
+            "limit": 100
+        }],
+        "prefer-const": true,
+        "newline-before-return": true,
+        "new-parens": true,
+        "no-irregular-whitespace": true,
+        "prefer-template": true
+    }
+}

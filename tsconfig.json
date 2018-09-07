@@ -1,0 +1,15 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "module": "es6",
+        "moduleResolution": "node",
+        "baseUrl": "./src",
+        "target": "es2018",
+        "experimentalDecorators": true,
+        "lib": ["es2018", "dom"],
+        "sourceMap": false,
+        "pretty": true,
+        "outDir": "./docs"
+    },
+    "include": ["./src/**/*"]
+}
