@@ -112,6 +112,7 @@ class MultiRange extends HTMLElement {
 
     startMouseTracking = startEv => {
         const target = startEv.target
+        target.setAttribute('slides', 'true');
 
         const trackMouse = trackEv => {
             const realtiveMouseX = trackEv.clientX - this.offsetLeft;
@@ -120,7 +121,10 @@ class MultiRange extends HTMLElement {
             this.setHandlePositionSafely(fr, target)
         }
 
-        const dispose = () => document.removeEventListener('mousemove', trackMouse);
+        const dispose = () => {
+            document.removeEventListener('mousemove', trackMouse);
+            target.removeAttribute('slides')
+        };
 
         document.addEventListener('mousemove', trackMouse);
         document.addEventListener('mouseup', dispose);      
