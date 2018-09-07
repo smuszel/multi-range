@@ -2,7 +2,8 @@
     --handleWidth: 15px;
     --selectedColor: hsl(190, 80%, 40%);
     --trackColor: rgb(212, 212, 212);
-    --handleColor: rgb(216, 216, 216);
+    --handleColor: rgb(225, 225, 225);
+    --handleColorHover: rgb(235, 235, 235);
     --handleBorderColor: rgb(167, 167, 167);
 }
 
@@ -38,6 +39,22 @@ multi-range {
     top: -100%;
     background: var(--handleColor);
     border: 1px solid var(--handleBorderColor);
+    z-index: 1;
+    
+
+    &:after {
+        content: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxNSAzMCc+CiAgICA8cGF0aCBzdHJva2U9J3JnYig4MCw4MCwxMDApJyBkPSdNNCAxMCBMMTEgMTAgTTQgMjAgTDExIDIwIE00IDIwIEwxMSAyMCBNNCAxNSBMMTEgMTUnPjwvcGF0aD4KPC9zdmc+");
+        display: block;
+    }
+
+    &[slides] {
+        z-index: 2;
+    }
+
+    &:hover, &[slides] {
+        transition: background-color outline 200ms;
+        background-color: var(--handleColorHover);
+    }
 
     &-fst {
         left: calc(var(--fst) - var(--handleWidth ) / 2);
