@@ -1,11 +1,8 @@
 {
     "devDependencies": {
-        "typescript": "3.0.3",
-        "tslint": "5.11.0",
-        "node-sass": "4.9.3",
-        "concurrently": "4.0.1"
+        "node-sass": "4.11.0"
     },
     "scripts": {
-        "start": "concurrently \"tsc -w\" \"node-sass ./src/index.scss -w -o docs\""
+        "start": "node-sass ./docs/index.scss -w -o docs"
     }
 }
